@@ -8,10 +8,19 @@ module Mongostat
       vsize res faults locked idxmiss qr|qw ar|aw netIn netOut conn time
     )
     DEFAULT_HOST   = "localhost:27017"
-    COMMAND        = "mongostat --rowcount 0 --host %s --discover"
 
-    def start(host=DEFAULT_HOST)
-      cmd = sprintf(COMMAND, host)
+    def start(opts={})
+      host = opts[:host] || DEFAULT_HOST
+      cmd  = "mongostat --rowcount 0 --discover -h #{host}"
+
+      if opts[:username]
+        cmd += " -u %s"
+      end
+
+      if opts[:password]
+        cmd += " -p %s"
+      end
+
       %x[#{cmd} > #{TEMP_FILE.path}]
     end
 
