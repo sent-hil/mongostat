@@ -1,13 +1,10 @@
 require "tempfile"
 require "mongostat/version"
+require "mongostat/headers"
 
 module Mongostat
   class << self
-    TEMP_FILE    ||= Tempfile.new("mongostat")
-    HEADERS        = %w(
-      dbname insert query update delete getmore command flushes mapped
-      vsize res faults locked idxmiss qr|qw ar|aw netIn netOut conn time
-    )
+    TEMP_FILE    ||= ::Tempfile.new("mongostat")
     DEFAULT_HOST   = "localhost:27017"
 
     def start(opts={})
@@ -58,7 +55,11 @@ module Mongostat
     def parse(line)
       result = {}
       line.split.each_with_index do |value, index|
-        result[HEADERS[index]] = value
+        key = HEADERS.keys[index]
+        fn  = HEADERS[key]
+        value = fn ? fn.call(value) : value
+
+        result[key] = value
       end
 
       result
