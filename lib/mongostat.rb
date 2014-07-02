@@ -6,6 +6,7 @@ require_relative "mongostat/headers"
 
 module Mongostat
   class ConnectionRefused < StandardError; end
+  class NoData < StandardError; end
 
   class << self
     TEMP_FILE    ||= ::Tempfile.new("mongostat")
@@ -40,8 +41,15 @@ module Mongostat
           select([TEMP_FILE])
           line = TEMP_FILE.gets
 
-          if line && line.include?("refused")
-            raise ConnectionRefused
+          # TODO: this is getting very ugly
+          if line
+            if line.include?("refused")
+              return {"err" => ConnectionRefused}
+            end
+
+            if line.include?("no data")
+              return {"err" => NoData}
+            end
           end
 
           if checks.call(line)
