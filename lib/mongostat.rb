@@ -5,6 +5,8 @@ require_relative "mongostat/version"
 require_relative "mongostat/headers"
 
 module Mongostat
+  class ConnectionRefused < StandardError; end
+
   class << self
     TEMP_FILE    ||= ::Tempfile.new("mongostat")
     DEFAULT_HOST   = "localhost:27017"
@@ -37,6 +39,10 @@ module Mongostat
 
           select([TEMP_FILE])
           line = TEMP_FILE.gets
+
+          if line && line.include?("refused")
+            raise ConnectionRefused
+          end
 
           if checks.call(line)
             return parse(line)
