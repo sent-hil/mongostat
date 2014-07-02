@@ -12,12 +12,12 @@ module Mongostat
       host = opts[:host] || DEFAULT_HOST
       cmd  = "mongostat --rowcount 0 --discover -h #{host}"
 
-      if opts[:username]
-        cmd += " -u %s"
+      if u = opts[:username]
+        cmd += " -u #{u}"
       end
 
-      if opts[:password]
-        cmd += " -p %s"
+      if p = opts[:password]
+        cmd += " -p #{p}"
       end
 
       %x[#{cmd} > #{TEMP_FILE.path}]
