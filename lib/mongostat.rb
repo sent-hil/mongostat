@@ -1,6 +1,7 @@
 require "tempfile"
 require "mongostat/version"
 require "mongostat/headers"
+require "timeout"
 
 module Mongostat
   class << self
@@ -23,20 +24,22 @@ module Mongostat
     end
 
     def read
-      loop do
-        TEMP_FILE.seek(0, IO::SEEK_END)
+      Timeout::timeout(10) do
+        loop do
+          TEMP_FILE.seek(0, IO::SEEK_END)
 
-        checks = proc do |line|
-          line =~ /\w+/ &&
-          !(line =~ /connected/) &&
-          !(line =~ /insert/)
-        end
+          checks = proc do |line|
+            line =~ /\w+/ &&
+            !(line =~ /connected/) &&
+            !(line =~ /insert/)
+          end
 
-        select([TEMP_FILE])
-        line = TEMP_FILE.gets
+          select([TEMP_FILE])
+          line = TEMP_FILE.gets
 
-        if checks.call(line)
-          return parse(line)
+          if checks.call(line)
+            return parse(line)
+          end
         end
       end
     end
