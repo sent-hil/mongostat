@@ -1,7 +1,8 @@
 require "tempfile"
-require "mongostat/version"
-require "mongostat/headers"
 require "timeout"
+
+require_relative "mongostat/version"
+require_relative "mongostat/headers"
 
 module Mongostat
   class << self
@@ -10,7 +11,7 @@ module Mongostat
 
     def start(opts={})
       host = opts[:host] || DEFAULT_HOST
-      cmd  = "mongostat --rowcount 0 --discover -h #{host}"
+      cmd  = "mongostat --rowcount 0 -h #{host}"
 
       if u = opts[:username]
         cmd += " -u #{u}"

@@ -13,10 +13,13 @@ module Mongostat
       {"db" => result[0], "locked" => to_i.call(result[1])}
     end
 
+    res = proc do |x|
+      to_i.call(x.gsub("g",""))
+    end
+
     time = proc {|x| Time.parse(x) }
 
     HEADERS = {
-      "dbname"  => nil,
       "insert"  => to_i,
       "query"   => to_i,
       "update"  => to_i,
@@ -26,7 +29,7 @@ module Mongostat
       "flushes" => to_i,
       "mapped"  => to_i,
       "vsize"   => to_i,
-      "res"     => to_i,
+      "res"     => res,
       "faults"  => to_i,
       "locked"  => locked,
       "idxmiss" => to_i,
@@ -35,6 +38,8 @@ module Mongostat
       "netIn"   => to_i,
       "netOut"  => to_i,
       "conn"    => to_i,
+      "set"     => nil,
+      "repl"    => nil,
       "time"    => time,
     }
   end
